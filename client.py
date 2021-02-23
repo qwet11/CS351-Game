@@ -1,4 +1,4 @@
-from socket import *
+    from socket import *
 import os 
 
 # Server IP Address and Port
@@ -19,6 +19,14 @@ try:
     playerName = input("Please enter your name: ")
     clientSocket.sendall(playerName.encode())
     
+    
+    """
+    while True:
+        response = clientSocket.recv(BUFFER_SIZE).decode()
+        print(response)
+        data = input()
+        clientSocket.sendall(data.encode)
+    """
     
 except IOError:
     print("File was not found!")
