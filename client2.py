@@ -1,6 +1,5 @@
 from socket import *
 import os 
-import time
 
 # Server IP Address and Port
 HOST = "localhost"
@@ -30,10 +29,9 @@ try:
             curr_board = clientSocket.recv(BUFFER_SIZE).decode()
             print(curr_board)
             
-            # time.sleep(1)
             # Check if this is the player's move (1 for yes, 0 for no)
             turn_checker = clientSocket.recv(BUFFER_SIZE).decode()
-            print("check: " + str(turn_checker) + "\n")
+            
             if (turn_checker == "0"):
                 # Wait for other player
                 print("Waiting for other player's move...")
@@ -41,9 +39,7 @@ try:
                 while True:
                     try: 
                         # Get player move 
-                        print("TEST1")
                         player_move = input("Your turn! Which box : ")
-                        print("TEST2")
                         # Checks if player_move is a number
                         if (int(player_move) < 1 or int(player_move) > 9):
                             print("Wrong Input! Try again")

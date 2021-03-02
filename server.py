@@ -1,6 +1,8 @@
+import time
+
 # Function to print Tic Tac Toe
 def print_tic_tac_toe(values):
-    curr_board = "\n" + "\t     |     |" + "\n\t  {}  |  {}  |  {}".format(values[0], values[1], values[2]) + "\n\t_____|_____|_____" + "\n\t     |     |" + "\n\t  {}  |  {}  |  {}".format(values[3], values[4], values[5]) + "\nt_____|_____|_____" + "\n\t     |     |" + "\n\t  {}  |  {}  |  {}".format(values[6], values[7], values[8]) + "\n\t     |     |" + "\n"
+    curr_board = "\n" + "\t     |     |" + "\n\t  {}  |  {}  |  {}".format(values[0], values[1], values[2]) + "\n\t_____|_____|_____" + "\n\t     |     |" + "\n\t  {}  |  {}  |  {}".format(values[3], values[4], values[5]) + "\n\t_____|_____|_____" + "\n\t     |     |" + "\n\t  {}  |  {}  |  {}".format(values[6], values[7], values[8]) + "\n\t     |     |" + "\n"
     return curr_board
  
  
@@ -36,7 +38,7 @@ def check_draw(player_pos):
     return False       
  
 # Function for a single game of Tic Tac Toe
-def single_game(piece_letter):
+def single_game(piece_letter, curr_socket):
  
     # Represents the Tic Tac Toe
     values = [' ' for x in range(9)]
@@ -49,7 +51,9 @@ def single_game(piece_letter):
         # Send current boards 
         for socket in sockets:
             socket.sendall(print_tic_tac_toe(values).encode())
-        
+        print("START SLEEPING\n")
+        time.sleep(2) # give enough time for turn_checker
+        print("DONE SLEEPING\n")
         # Send 1 or 0 depending on who's turn it is (1 for yes, 0 for no)
         for socket in sockets:
             if (socket == sockets[curr_socket]):
@@ -57,7 +61,9 @@ def single_game(piece_letter):
             else:
                 socket.sendall("0".encode())
         
-        sockets[curr_socket].sendall("Your turn! Which box : ".encode())
+        time.sleep(5)
+        sockets[0].sendall("SENT A WHILE LATER\n")
+        #sockets[curr_socket].sendall("Your turn! Which box : ".encode())
         move = int(sockets[curr_socket].recv(BUFFER_SIZE).decode())
  
         # Check if the box is not occupied already (1 for yes, 0 for no)
@@ -110,7 +116,7 @@ from socket import *
 
 # Server IP Address and Port
 HOST = "localhost"
-PORT = 1200
+PORT = 65000
 BUFFER_SIZE = 1024
 
 # Setting up our socket
@@ -157,14 +163,14 @@ while True:
         curr_socket = 0
         
         # Send current scoreboard
-        for socket in sockets:
-            socket.sendall(print_scoreboard(score_board).encode())
+        #for socket in sockets:
+        #    socket.sendall(print_scoreboard(score_board).encode())
         
         # Game Loop for a series of Tic Tac Toe
         # The loop runs until the players quit 
         while True:
             # Stores the winner in a single game of Tic Tac Toe
-            winner = single_game(options[curr_socket])
+            winner = single_game(options[0], curr_socket)
              
             # Edits the scoreboard according to the winner
             if winner != 'D' :
@@ -181,9 +187,9 @@ while True:
             else:
                 cur_player = player1
                 curr_socket = 0
-    except Exception:
+    except Exception as e:
         print("Error!")
-        print(Exception + "\n")
+        print(str(e) + "\n")
     finally:
         # Close connection with client
         for socket in sockets:
