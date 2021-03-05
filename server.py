@@ -62,7 +62,7 @@ def single_game(piece_letter, curr_socket):
                 socket.sendall("0".encode())
         
         time.sleep(5)
-        sockets[0].sendall("SENT A WHILE LATER\n")
+        #sockets[curr_socket].sendall("SENT A WHILE LATER\n")
         #sockets[curr_socket].sendall("Your turn! Which box : ".encode())
         move = int(sockets[curr_socket].recv(BUFFER_SIZE).decode())
  

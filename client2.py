@@ -20,8 +20,8 @@ try:
     clientSocket.sendall(playerName.encode())
     
     # Receive scoreboard
-    curr_scoreboard = clientSocket.recv(BUFFER_SIZE).decode()
-    print(curr_scoreboard)
+    #curr_scoreboard = clientSocket.recv(BUFFER_SIZE).decode()
+    #print(curr_scoreboard)
     
     while True:
         while True:

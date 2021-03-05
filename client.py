@@ -21,8 +21,8 @@ try:
     clientSocket.sendall(playerName.encode())
     
     # Receive scoreboard
-    curr_scoreboard = clientSocket.recv(BUFFER_SIZE).decode()
-    print(curr_scoreboard)
+    #curr_scoreboard = clientSocket.recv(BUFFER_SIZE).decode()
+    #print(curr_scoreboard)
     
     while True:
         while True:
@@ -33,7 +33,7 @@ try:
             # time.sleep(1)
             # Check if this is the player's move (1 for yes, 0 for no)
             turn_checker = clientSocket.recv(BUFFER_SIZE).decode()
-            print("check: " + str(turn_checker) + "\n")
+            print("check: " + str(turn_checker) + "\n") #Debugging only
             if (turn_checker == "0"):
                 # Wait for other player
                 print("Waiting for other player's move...")
