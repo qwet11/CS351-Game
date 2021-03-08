@@ -68,6 +68,7 @@ try:
             continue_checker = clientSocket.recv(BUFFER_SIZE).decode()
             
             if (continue_checker == "Continue"):
+                clientSocket.recv(BUFFER_SIZE).decode()
                 continue
             elif (continue_checker == "Finish"):
                 curr_board = clientSocket.recv(BUFFER_SIZE).decode()

@@ -72,6 +72,7 @@ try:
             continue_checker = clientSocket.recv(BUFFER_SIZE).decode()
             
             if (continue_checker == "Continue"):
+                clientSocket.sendall("Received").encode()
                 continue
             elif (continue_checker == "Finish"):
                 curr_board = clientSocket.recv(BUFFER_SIZE).decode()
@@ -79,6 +80,9 @@ try:
                 game_message = clientSocket.recv(BUFFER_SIZE).decode()
                 print(game_message)
                 break
+            else:
+                # Should never run. DEBUGGING
+                input("ERROR 3. Please Exit")
         
         # Receive scoreboard
         curr_scoreboard = clientSocket.recv(BUFFER_SIZE).decode()

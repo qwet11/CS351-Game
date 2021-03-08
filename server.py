@@ -103,6 +103,7 @@ def single_game(piece_letter, curr_socket):
         else:
             for socket in sockets:
                 socket.sendall("Continue".encode())
+                socket.recv(BUFFER_SIZE).decode()
  
         # Switch player moves
         if piece_letter == 'X':
