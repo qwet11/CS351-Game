@@ -28,12 +28,14 @@ try:
         while True:
             # Receive current board 
             curr_board = clientSocket.recv(BUFFER_SIZE).decode()
+            clientSocket.sendall("Received".encode())
             print(curr_board)
             
             # time.sleep(1)
             # Check if this is the player's move (1 for yes, 0 for no)
             turn_checker = clientSocket.recv(BUFFER_SIZE).decode()
             print("check: " + str(turn_checker) + "\n") #Debugging only
+            clientSocket.sendall("Received".encode())
             if (turn_checker == "0"):
                 # Wait for other player
                 print("Waiting for other player's move...")
@@ -51,6 +53,7 @@ try:
                             clientSocket.sendall(player_move.encode())
                             # Check if box is not occupied
                             fill_checker = clientSocket.recv(BUFFER_SIZE).decode()
+                            clientSocket.sendall("Received".encode())
                             if (fill_checker == "1"):
                                 # Box is occupied. Try again
                                 print("Place already filled. Try again!!")
@@ -70,14 +73,17 @@ try:
                 
             # Check if we should continue
             continue_checker = clientSocket.recv(BUFFER_SIZE).decode()
+            clientSocket.sendall("Received".encode())
             
             if (continue_checker == "Continue"):
-                clientSocket.sendall("Received").encode()
                 continue
             elif (continue_checker == "Finish"):
                 curr_board = clientSocket.recv(BUFFER_SIZE).decode()
+                clientSocket.sendall("Received".encode())
                 print(curr_board)
+                
                 game_message = clientSocket.recv(BUFFER_SIZE).decode()
+                clientSocket.sendall("Received".encode())
                 print(game_message)
                 break
             else:
@@ -85,8 +91,8 @@ try:
                 input("ERROR 3. Please Exit")
         
         # Receive scoreboard
-        curr_scoreboard = clientSocket.recv(BUFFER_SIZE).decode()
-        print(curr_scoreboard)
+        #curr_scoreboard = clientSocket.recv(BUFFER_SIZE).decode()
+        #print(curr_scoreboard)
     
         
     

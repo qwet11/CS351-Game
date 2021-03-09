@@ -1,5 +1,11 @@
 import time
 
+# For debugging only
+def print_error_message(message, label):
+    print(message)
+    print("Label: ", label)
+    input("Please Exit!")
+
 # Function to print Tic Tac Toe
 def print_tic_tac_toe(values):
     curr_board = "\n" + "\t     |     |" + "\n\t  {}  |  {}  |  {}".format(values[0], values[1], values[2]) + "\n\t_____|_____|_____" + "\n\t     |     |" + "\n\t  {}  |  {}  |  {}".format(values[3], values[4], values[5]) + "\n\t_____|_____|_____" + "\n\t     |     |" + "\n\t  {}  |  {}  |  {}".format(values[6], values[7], values[8]) + "\n\t     |     |" + "\n"
@@ -51,27 +57,43 @@ def single_game(piece_letter, curr_socket):
         # Send current boards 
         for socket in sockets:
             socket.sendall(print_tic_tac_toe(values).encode())
-        print("START SLEEPING\n")
-        time.sleep(2) # give enough time for turn_checker
-        print("DONE SLEEPING\n")
+            if (socket.recv(BUFFER_SIZE).decode() != "Received"):
+                    print_error_message("ERROR. Out of Sync", 100)
+                    
+        #print("START SLEEPING\n")
+        #time.sleep(2) # give enough time for turn_checker
+        #print("DONE SLEEPING\n")
+        
         # Send 1 or 0 depending on who's turn it is (1 for yes, 0 for no)
         for socket in sockets:
             if (socket == sockets[curr_socket]):
                 socket.sendall("1".encode())
             else:
                 socket.sendall("0".encode())
+                
+            if (socket.recv(BUFFER_SIZE).decode() != "Received"):
+                    print_error_message("ERROR. Out of Sync", 200)
         
-        time.sleep(5)
+        #time.sleep(2)
         #sockets[curr_socket].sendall("SENT A WHILE LATER\n")
         #sockets[curr_socket].sendall("Your turn! Which box : ".encode())
-        move = int(sockets[curr_socket].recv(BUFFER_SIZE).decode())
- 
-        # Check if the box is not occupied already (1 for yes, 0 for no)
-        if values[move-1] != ' ':
-            sockets[curr_socket].sendall("1".encode())
-            continue
-        else:
-            sockets[curr_socket].sendall("0".encode())
+        
+        while True: 
+            move = int(sockets[curr_socket].recv(BUFFER_SIZE).decode())
+     
+            # Check if the box is not occupied already (1 for yes, 0 for no)
+            if values[move-1] != ' ':
+                sockets[curr_socket].sendall("1".encode())
+                #time.sleep(1)
+                if (sockets[curr_socket].recv(BUFFER_SIZE).decode() != "Received"):
+                    print_error_message("ERROR. Out of Sync", 300)
+                continue
+            else:
+                sockets[curr_socket].sendall("0".encode())
+                #time.sleep(1)
+                if (sockets[curr_socket].recv(BUFFER_SIZE).decode() != "Received"):
+                    print_error_message("ERROR. Out of Sync", 400)
+                break
  
         # Update game information
  
@@ -86,25 +108,42 @@ def single_game(piece_letter, curr_socket):
             for socket in sockets:
                 # Return a "finish" message (to know that the game is over)
                 socket.sendall("Finish".encode())
+                if (socket.recv(BUFFER_SIZE).decode() != "Received"):
+                    print_error_message("ERROR. Out of Sync", 500)
+                    
                 # Send Won game
                 socket.sendall(print_tic_tac_toe(values).encode())
+                if (socket.recv(BUFFER_SIZE).decode() != "Received"):
+                    print_error_message("ERROR. Out of Sync", 600)
+                
                 socket.sendall(("Player " + piece_letter + " has won the game!!").encode())   
+                if (socket.recv(BUFFER_SIZE).decode() != "Received"):
+                    print_error_message("ERROR. Out of Sync", 700)
             return piece_letter
         # Function call for checking draw game
         elif check_draw(player_pos):
             for socket in sockets:
                 # Return a "finish" message (to know that the game is over)
                 socket.sendall("Finish".encode())
+                if (socket.recv(BUFFER_SIZE).decode() != "Received"):
+                    print_error_message("ERROR. Out of Sync", 800)
+                    
                 # Send Drawn game
                 socket.sendall(print_tic_tac_toe(values).encode())
+                if (socket.recv(BUFFER_SIZE).decode() != "Received"):
+                    print_error_message("ERROR. Out of Sync", 900)
+                    
                 socket.sendall("Game Drawn".encode())
+                if (socket.recv(BUFFER_SIZE).decode() != "Received"):
+                    print_error_message("ERROR. Out of Sync", 1000)
             return 'D'
         # Return a "continue" message (to know that we continue)
         else:
             for socket in sockets:
                 socket.sendall("Continue".encode())
-                socket.recv(BUFFER_SIZE).decode()
- 
+                if (socket.recv(BUFFER_SIZE).decode() != "Received"):
+                    print_error_message("ERROR. Out of Sync", 1100)
+                
         # Switch player moves
         if piece_letter == 'X':
             piece_letter = 'O'
@@ -178,9 +217,11 @@ while True:
                 player_won = player_choice[winner]
                 score_board[player_won] = score_board[player_won] + 1
             
+            """
             for socket in sockets:
                 socket.sendall(print_scoreboard(score_board).encode())
-                
+            """
+            
             # Switch player who chooses X or O
             if cur_player == player1:
                 cur_player = player2
