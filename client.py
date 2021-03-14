@@ -44,35 +44,44 @@ def BoardGame():
         while True:
             # Receive current board 
             curr_board = clientSocket.recv(BUFFER_SIZE).decode()
+            
+            # Change GUI board to current board
             board.board_lbl.setText(curr_board)
-            clientSocket.sendall("Received".encode())
             print(curr_board)
+            clientSocket.sendall("Received".encode())            
             
             # Check if this is the player's move (1 for yes, 0 for no)
             turn_checker = clientSocket.recv(BUFFER_SIZE).decode()
             print("check: " + str(turn_checker) + "\n") #Debugging only
             clientSocket.sendall("Received".encode())
+            
             if (turn_checker == "0"):
-                # Wait for other player
-                board.send_move_bt.hide()
+                # Hide button and input box
+                board.send_move_bt.hide() 
                 board.input_edit.hide()
-                print("Waiting for other player's move...")
+                
+                # Wait for other player 
                 board.turn_lbl.setText("Waiting for other player's move...")
+                print("Waiting for other player's move...")
             elif (turn_checker == "1"):
+                # Show button and input box
                 board.send_move_bt.show()
                 board.input_edit.show()
+                
                 while True:
                     try: 
-                        # Get player move 
-                        print("Your Turn!")
+                        # Inform player of his turn
                         board.turn_lbl.setText("Your Turn!")
+                        print("Your Turn!")
+                        
+                        # Wait for player's input
                         player_move = "holdondude"
                         while (player_move == "holdondude"): { }
                         
                         # Checks if player_move is a number
                         if (int(player_move) < 1 or int(player_move) > 9):
-                            print("Please input a number (1-9)")
                             board.error_lbl.setText("Please input a number (1-9)")
+                            print("Please input a number (1-9)")
                         else:
                             clientSocket.sendall(player_move.encode())
                             # Check if box is not occupied
@@ -80,8 +89,8 @@ def BoardGame():
                             clientSocket.sendall("Received".encode())
                             if (fill_checker == "1"):
                                 # Box is occupied. Try again
-                                print("Place already filled. Try again!!")
                                 board.error_lbl.setText("Place already filled. Try again!!")
+                                print("Place already filled. Try again!!")
                                 continue
                             elif (fill_checker == "0"): 
                                 # Everything in order
@@ -91,8 +100,8 @@ def BoardGame():
                                 # Should never run. DEBUGGING
                                 input("ERROR 2. Please Exit")
                     except(ValueError):
-                        print("Please input a number (1-9)")
                         board.error_lbl.setText("Please input a number (1-9)")
+                        print("Please input a number (1-9)")
                         continue
             else:
                 # Should never run. DEBUGGING
@@ -105,15 +114,19 @@ def BoardGame():
             if (continue_checker == "Continue"):
                 continue
             elif (continue_checker == "Finish"):
+                # Update board
                 curr_board = clientSocket.recv(BUFFER_SIZE).decode()
                 clientSocket.sendall("Received".encode())
                 print(curr_board)
                 
                 game_message = clientSocket.recv(BUFFER_SIZE).decode()
                 clientSocket.sendall("Received".encode())
-                print(game_message)
-                board.error_lbl.setText(game_message)
                 
+                # Show game message
+                board.error_lbl.setText(game_message)
+                print(game_message)
+                
+                # Reset turn label
                 board.turn_lbl.setText("")
                 break
             else:
@@ -137,6 +150,7 @@ try:
     playerName = input("Please enter your name: ")
     clientSocket.sendall(playerName.encode())
     print("Waiting for other player to connect...")
+    
     """
     # Receive scoreboard
     curr_scoreboard = clientSocket.recv(BUFFER_SIZE).decode()
@@ -148,15 +162,11 @@ try:
     board.show()
 
     
-    thread = Thread(target=BoardGame)
-    thread.start()
+    game_thread = Thread(target=BoardGame)
+    game_thread.start()
     
     app.exec_()
-    #sys.exit(app.exec_())
-    # =====Put into functions for threading====
-    
-    
-        
+    #sys.exit(app.exec_())        
     
 except Exception as e:
     print("Error!")
