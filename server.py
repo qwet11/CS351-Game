@@ -155,6 +155,8 @@ serverSocket.bind(("", PORT))
 serverSocket.listen()
 
 while True:
+    # ====Put into function for threading====
+    
     try:
         # Establish connection with client 1
         print("Waiting for player 1...")

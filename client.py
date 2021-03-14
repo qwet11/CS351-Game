@@ -25,7 +25,7 @@ try:
     print(curr_scoreboard)
     """
     
-    # Playing Tic-Tac-Toe
+    # =====Put into functions for threading====
     
     #Starting Game
     while True:
