@@ -1,4 +1,4 @@
-import threading
+from threading import Thread
 
 # For debugging only
 def print_error_message(message, label):
@@ -23,14 +23,14 @@ def print_scoreboard(score_board):
     return curr_scoreboard
  
 # Function to check if any player has won
-def check_win(player_pos, cur_player):
+def check_win(player_pos, curr_player):
  
     # All possible winning combinations
     soln = [[1, 2, 3], [4, 5, 6], [7, 8, 9], [1, 4, 7], [2, 5, 8], [3, 6, 9], [1, 5, 9], [3, 5, 7]]
  
     # Loop to check if any winning combination is satisfied
     for x in soln:
-        if all(y in player_pos[cur_player] for y in x):
+        if all(y in player_pos[curr_player] for y in x):
  
             # Return True if any winning combination satisfies
             return True
@@ -44,7 +44,7 @@ def check_draw(player_pos):
     return False       
  
 # Function for a single game of Tic Tac Toe
-def single_game(piece_letter, curr_socket):
+def single_game(piece_letter, curr_socket, sockets):
  
     # Represents the Tic Tac Toe
     values = [' ' for x in range(9)]
@@ -142,6 +142,92 @@ def single_game(piece_letter, curr_socket):
             piece_letter = 'X'
             curr_socket = (curr_socket + 1) % 2
  
+# Connect clients
+def pair_incoming_clients():
+    while True:
+    # ====Put into function for threading====
+        try:
+            # Establish connection with client 1
+            print("Waiting for player 1...")
+            connectionSocket1, connectionAddress1 = serverSocket.accept()
+            print("Player 1 connected successful!\n")
+            
+            # Establish connection with client 2
+            print("Waiting for player 2...")
+            connectionSocket2, connectionAddress2 = serverSocket.accept()
+            print("Player 2 connected successfully!\n")
+            
+            Thread(target=play_game_room, args=(connectionSocket1, connectionSocket2)).start()
+            
+        except Exception as e:
+            print("Error!")
+            print(str(e) + "\n")
+        """"
+        finally:
+            # Close connection with client
+            for socket in sockets:
+                socket.close()
+            print("Connection successfully terminated!\n")
+        """
+        
+def play_game_room(connectionSocket1, connectionSocket2):
+    # Get players names
+    player1 = connectionSocket1.recv(BUFFER_SIZE).decode()
+    player2 = connectionSocket2.recv(BUFFER_SIZE).decode()
+    
+    # Stores the current player
+    curr_player = player1
+    
+    # Stores the choice of players 
+    player_choice = {"X" : "", "O" : ""}
+    
+    # Stores the options 
+    options = ["X", "O"]
+    
+    # May change
+    player_choice["X"] = player1
+    player_choice["O"] = player2
+    
+    # Stores the scoreboard
+    score_board = {player1 : 0, player2: 0}
+    
+    # Stores the sockets
+    sockets = [connectionSocket1, connectionSocket2]
+    
+    # Stores the current socket index (for the current player)
+    curr_socket = 0
+    
+    """
+    # Send current scoreboard
+    for socket in sockets:
+        socket.sendall(print_scoreboard(score_board).encode())
+    """
+    
+    # Game Loop for a series of Tic Tac Toe
+    # The loop runs until the players quit 
+    while True:
+        # Stores the winner in a single game of Tic Tac Toe
+        winner = single_game(options[0], curr_socket, sockets)
+         
+        # Edits the scoreboard according to the winner
+        if winner != 'D' :
+            player_won = player_choice[winner]
+            score_board[player_won] = score_board[player_won] + 1
+        
+        """
+        for socket in sockets:
+            socket.sendall(print_scoreboard(score_board).encode())
+        """
+        
+        # Switch player who chooses X or O
+        if curr_player == player1:
+            curr_player = player2
+            curr_socket = 1
+        else:
+            curr_player = player1
+            curr_socket = 0
+    
+
 from socket import *
 
 # Server IP Address and Port
@@ -157,82 +243,10 @@ serverSocket.listen()
 # CREATE TWO SOCKETS
 # ONE FOR THE GAME AND FOR THE CHAT
 
-while True:
-    # ====Put into function for threading====
-    
-    try:
-        # Establish connection with client 1
-        print("Waiting for player 1...")
-        connectionSocket1, connectionAddress1 = serverSocket.accept()
-        print("Player 1 connected successful!\n")
-        
-        # Establish connection with client 2
-        print("Waiting for player 2...")
-        connectionSocket2, connectionAddress2 = serverSocket.accept()
-        print("Player 2 connected successfully!\n")
-        
-        # Get players names
-        player1 = connectionSocket1.recv(BUFFER_SIZE).decode()
-        player2 = connectionSocket2.recv(BUFFER_SIZE).decode()
-        
-        # Stores the current player
-        cur_player = player1
-        
-        # Stores the choice of players 
-        player_choice = {"X" : "", "O" : ""}
-        
-        # Stores the options 
-        options = ["X", "O"]
-        
-        # May change
-        player_choice["X"] = player1
-        player_choice["O"] = player2
-        
-        # Stores the scoreboard
-        score_board = {player1 : 0, player2: 0}
-        
-        # Stores the sockets
-        sockets = [connectionSocket1, connectionSocket2]
-        
-        # Stores the current socket index (for the current player)
-        curr_socket = 0
-        
-        """
-        # Send current scoreboard
-        for socket in sockets:
-            socket.sendall(print_scoreboard(score_board).encode())
-        """
-        
-        # Game Loop for a series of Tic Tac Toe
-        # The loop runs until the players quit 
-        while True:
-            # Stores the winner in a single game of Tic Tac Toe
-            winner = single_game(options[0], curr_socket)
-             
-            # Edits the scoreboard according to the winner
-            if winner != 'D' :
-                player_won = player_choice[winner]
-                score_board[player_won] = score_board[player_won] + 1
-            
-            """
-            for socket in sockets:
-                socket.sendall(print_scoreboard(score_board).encode())
-            """
-            
-            # Switch player who chooses X or O
-            if cur_player == player1:
-                cur_player = player2
-                curr_socket = 1
-            else:
-                cur_player = player1
-                curr_socket = 0
-    except Exception as e:
-        print("Error!")
-        print(str(e) + "\n")
-    finally:
-        # Close connection with client
-        for socket in sockets:
-            socket.close()
-        print("Connection successfully terminated!\n")
-        
+if __name__ == "__main__":
+    serverSocket.listen(40)
+    accept_thread = Thread(target=pair_incoming_clients)
+    accept_thread.start()
+    accept_thread.join()
+    serverSocket.close()
 
