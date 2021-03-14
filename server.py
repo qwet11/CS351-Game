@@ -1,4 +1,4 @@
-import time
+import threading
 
 # For debugging only
 def print_error_message(message, label):
@@ -59,10 +59,6 @@ def single_game(piece_letter, curr_socket):
             socket.sendall(print_tic_tac_toe(values).encode())
             if (socket.recv(BUFFER_SIZE).decode() != "Received"):
                     print_error_message("ERROR. Out of Sync", 100)
-                    
-        #print("START SLEEPING\n")
-        #time.sleep(2) # give enough time for turn_checker
-        #print("DONE SLEEPING\n")
         
         # Send 1 or 0 depending on who's turn it is (1 for yes, 0 for no)
         for socket in sockets:
@@ -74,23 +70,17 @@ def single_game(piece_letter, curr_socket):
             if (socket.recv(BUFFER_SIZE).decode() != "Received"):
                     print_error_message("ERROR. Out of Sync", 200)
         
-        #time.sleep(2)
-        #sockets[curr_socket].sendall("SENT A WHILE LATER\n")
-        #sockets[curr_socket].sendall("Your turn! Which box : ".encode())
-        
         while True: 
             move = int(sockets[curr_socket].recv(BUFFER_SIZE).decode())
      
             # Check if the box is not occupied already (1 for yes, 0 for no)
             if values[move-1] != ' ':
                 sockets[curr_socket].sendall("1".encode())
-                #time.sleep(1)
                 if (sockets[curr_socket].recv(BUFFER_SIZE).decode() != "Received"):
                     print_error_message("ERROR. Out of Sync", 300)
                 continue
             else:
                 sockets[curr_socket].sendall("0".encode())
-                #time.sleep(1)
                 if (sockets[curr_socket].recv(BUFFER_SIZE).decode() != "Received"):
                     print_error_message("ERROR. Out of Sync", 400)
                 break
@@ -202,9 +192,11 @@ while True:
         # Stores the current socket index (for the current player)
         curr_socket = 0
         
+        """
         # Send current scoreboard
-        #for socket in sockets:
-        #    socket.sendall(print_scoreboard(score_board).encode())
+        for socket in sockets:
+            socket.sendall(print_scoreboard(score_board).encode())
+        """
         
         # Game Loop for a series of Tic Tac Toe
         # The loop runs until the players quit 
