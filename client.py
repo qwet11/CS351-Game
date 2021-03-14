@@ -2,12 +2,41 @@ from socket import *
 import os
 
 # Server IP Address and Port
-HOST = "localhost"
+HOST = "ec2-54-196-243-241.compute-1.amazonaws.com"
 PORT = 65000
 BUFFER_SIZE = 1024
 
 # Setting up our socket
 clientSocket = socket(AF_INET, SOCK_STREAM)
+
+def play_move():
+    while True:
+        try: 
+            # Get player move 
+            print("TEST1")
+            player_move = input("Your turn! Which box : ")
+            print("TEST2")
+            # Checks if player_move is a number
+            if (int(player_move) < 1 or int(player_move) > 9):
+                print("Wrong Input! Try again")
+            else:
+                clientSocket.sendall(player_move.encode())
+                # Check if box is not occupied
+                fill_checker = clientSocket.recv(BUFFER_SIZE).decode()
+                clientSocket.sendall("Received".encode())
+                if (fill_checker == "1"):
+                    # Box is occupied. Try again
+                    print("Place already filled. Try again!!")
+                    continue
+                elif (fill_checker == "0"): 
+                    # Everything in order
+                    break
+                else: 
+                    # Should never run. DEBUGGING
+                    input("ERROR 2. Please Exit")
+        except(ValueError):
+            print("Please input a number (1-9)")
+            continue    
 
 try:
     # Connect with server
@@ -44,33 +73,7 @@ try:
                 # Wait for other player
                 print("Waiting for other player's move...")
             elif (turn_checker == "1"):
-                while True:
-                    try: 
-                        # Get player move 
-                        print("TEST1")
-                        player_move = input("Your turn! Which box : ")
-                        print("TEST2")
-                        # Checks if player_move is a number
-                        if (int(player_move) < 1 or int(player_move) > 9):
-                            print("Wrong Input! Try again")
-                        else:
-                            clientSocket.sendall(player_move.encode())
-                            # Check if box is not occupied
-                            fill_checker = clientSocket.recv(BUFFER_SIZE).decode()
-                            clientSocket.sendall("Received".encode())
-                            if (fill_checker == "1"):
-                                # Box is occupied. Try again
-                                print("Place already filled. Try again!!")
-                                continue
-                            elif (fill_checker == "0"): 
-                                # Everything in order
-                                break
-                            else: 
-                                # Should never run. DEBUGGING
-                                input("ERROR 2. Please Exit")
-                    except(ValueError):
-                        print("Please input a number (1-9)")
-                        continue
+                play_move()
             else:
                 # Should never run. DEBUGGING
                 input("ERROR 1. Please Exit")
