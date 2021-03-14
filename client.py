@@ -1,6 +1,5 @@
 from socket import *
-import os 
-import time
+import os
 
 # Server IP Address and Port
 HOST = "localhost"
@@ -20,9 +19,11 @@ try:
     playerName = input("Please enter your name: ")
     clientSocket.sendall(playerName.encode())
     
+    """
     # Receive scoreboard
-    #curr_scoreboard = clientSocket.recv(BUFFER_SIZE).decode()
-    #print(curr_scoreboard)
+    curr_scoreboard = clientSocket.recv(BUFFER_SIZE).decode()
+    print(curr_scoreboard)
+    """
     
     while True:
         while True:
@@ -31,7 +32,6 @@ try:
             clientSocket.sendall("Received".encode())
             print(curr_board)
             
-            # time.sleep(1)
             # Check if this is the player's move (1 for yes, 0 for no)
             turn_checker = clientSocket.recv(BUFFER_SIZE).decode()
             print("check: " + str(turn_checker) + "\n") #Debugging only
@@ -90,10 +90,11 @@ try:
                 # Should never run. DEBUGGING
                 input("ERROR 3. Please Exit")
         
+        """
         # Receive scoreboard
-        #curr_scoreboard = clientSocket.recv(BUFFER_SIZE).decode()
-        #print(curr_scoreboard)
-    
+        curr_scoreboard = clientSocket.recv(BUFFER_SIZE).decode()
+        print(curr_scoreboard)
+        """
         
     
 except Exception as e:
