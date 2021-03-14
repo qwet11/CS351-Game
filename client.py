@@ -1,5 +1,10 @@
 from socket import *
+from PyQt5 import uic
+from PyQt5.QtCore import *
+from PyQt5.QtWidgets import *
+import sys
 import os
+from threading import Thread
 
 # Server IP Address and Port
 HOST = "localhost"
@@ -9,30 +14,37 @@ BUFFER_SIZE = 1024
 # Setting up our socket
 clientSocket = socket(AF_INET, SOCK_STREAM)
 
-try:
-    # Connect with server
-    print("Trying to connect..")
-    clientSocket.connect((HOST, PORT))
-    print("Connection established!")
+# CREATE TWO SOCKETS
+# ONE FOR THE GAME AND FOR THE CHAT
 
-    # Send player name
-    playerName = input("Please enter your name: ")
-    clientSocket.sendall(playerName.encode())
-    
-    """
-    # Receive scoreboard
-    curr_scoreboard = clientSocket.recv(BUFFER_SIZE).decode()
-    print(curr_scoreboard)
-    """
-    
-    # =====Put into functions for threading====
-    
+# GLOBALS
+player_move = "holdondude"
+
+class Board(QMainWindow):
+    def __init__(self):
+        #super().__init__()
+        QThread.__init__(self)
+        uic.loadUi('Board.ui', self)
+        self.setWindowTitle('Board Game')
+        self.send_move_bt.clicked.connect(self.sendMove)
+        self.error_lbl.setText("")
+        self.turn_lbl.setText("")
+        
+    def sendMove(self):
+        global player_move
+        player_move = board.input_edit.text()
+        self.input_edit.setText("")
+        self.error_lbl.setText("")
+
+def BoardGame():
+    global board, player_move
     #Starting Game
     while True:
         # Playing Game
         while True:
             # Receive current board 
             curr_board = clientSocket.recv(BUFFER_SIZE).decode()
+            board.board_lbl.setText(curr_board)
             clientSocket.sendall("Received".encode())
             print(curr_board)
             
@@ -42,17 +54,25 @@ try:
             clientSocket.sendall("Received".encode())
             if (turn_checker == "0"):
                 # Wait for other player
+                board.send_move_bt.hide()
+                board.input_edit.hide()
                 print("Waiting for other player's move...")
+                board.turn_lbl.setText("Waiting for other player's move...")
             elif (turn_checker == "1"):
+                board.send_move_bt.show()
+                board.input_edit.show()
                 while True:
                     try: 
                         # Get player move 
-                        print("TEST1")
-                        player_move = input("Your turn! Which box : ")
-                        print("TEST2")
+                        print("Your Turn!")
+                        board.turn_lbl.setText("Your Turn!")
+                        player_move = "holdondude"
+                        while (player_move == "holdondude"): { }
+                        
                         # Checks if player_move is a number
                         if (int(player_move) < 1 or int(player_move) > 9):
-                            print("Wrong Input! Try again")
+                            print("Please input a number (1-9)")
+                            board.error_lbl.setText("Please input a number (1-9)")
                         else:
                             clientSocket.sendall(player_move.encode())
                             # Check if box is not occupied
@@ -61,15 +81,18 @@ try:
                             if (fill_checker == "1"):
                                 # Box is occupied. Try again
                                 print("Place already filled. Try again!!")
+                                board.error_lbl.setText("Place already filled. Try again!!")
                                 continue
                             elif (fill_checker == "0"): 
                                 # Everything in order
+                                player_move = "holdondude"
                                 break
                             else: 
                                 # Should never run. DEBUGGING
                                 input("ERROR 2. Please Exit")
                     except(ValueError):
                         print("Please input a number (1-9)")
+                        board.error_lbl.setText("Please input a number (1-9)")
                         continue
             else:
                 # Should never run. DEBUGGING
@@ -89,16 +112,50 @@ try:
                 game_message = clientSocket.recv(BUFFER_SIZE).decode()
                 clientSocket.sendall("Received".encode())
                 print(game_message)
+                board.error_lbl.setText(game_message)
+                
+                board.turn_lbl.setText("")
                 break
             else:
                 # Should never run. DEBUGGING
                 input("ERROR 3. Please Exit")
-        
+            
+
         """
         # Receive scoreboard
         curr_scoreboard = clientSocket.recv(BUFFER_SIZE).decode()
         print(curr_scoreboard)
         """
+
+try:
+    # Connect with server
+    print("Trying to connect..")
+    clientSocket.connect((HOST, PORT))
+    print("Connection established!")
+
+    # Send player name
+    playerName = input("Please enter your name: ")
+    clientSocket.sendall(playerName.encode())
+    print("Waiting for other player to connect...")
+    """
+    # Receive scoreboard
+    curr_scoreboard = clientSocket.recv(BUFFER_SIZE).decode()
+    print(curr_scoreboard)
+    """
+    
+    app = QApplication(sys.argv)
+    board = Board()
+    board.show()
+
+    
+    thread = Thread(target=BoardGame)
+    thread.start()
+    
+    app.exec_()
+    #sys.exit(app.exec_())
+    # =====Put into functions for threading====
+    
+    
         
     
 except Exception as e:
@@ -107,3 +164,4 @@ except Exception as e:
 finally:
     input("Press Enter to continue") # Here to wait for user input before closing program
     clientSocket.close()
+   

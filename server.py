@@ -145,14 +145,17 @@ def single_game(piece_letter, curr_socket):
 from socket import *
 
 # Server IP Address and Port
-HOST = "localhost"
+HOST = ""
 PORT = 65000
 BUFFER_SIZE = 1024
 
 # Setting up our socket
 serverSocket = socket(AF_INET, SOCK_STREAM)
-serverSocket.bind(("", PORT))
+serverSocket.bind((HOST, PORT))
 serverSocket.listen()
+
+# CREATE TWO SOCKETS
+# ONE FOR THE GAME AND FOR THE CHAT
 
 while True:
     # ====Put into function for threading====
