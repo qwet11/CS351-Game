@@ -25,7 +25,11 @@ try:
     print(curr_scoreboard)
     """
     
+    # Playing Tic-Tac-Toe
+    
+    #Starting Game
     while True:
+        # Playing Game
         while True:
             # Receive current board 
             curr_board = clientSocket.recv(BUFFER_SIZE).decode()
