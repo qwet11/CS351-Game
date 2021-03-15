@@ -12,7 +12,7 @@ PORT = 65000
 BUFFER_SIZE = 1024
 
 # Setting up our socket
-clientSocket = socket(AF_INET, SOCK_STREAM)
+clientGameSocket = socket(AF_INET, SOCK_STREAM)
 
 # CREATE TWO SOCKETS
 # ONE FOR THE GAME AND FOR THE CHAT
@@ -43,17 +43,17 @@ def BoardGame():
         # Playing Game
         while True:
             # Receive current board 
-            curr_board = clientSocket.recv(BUFFER_SIZE).decode()
+            curr_board = clientGameSocket.recv(BUFFER_SIZE).decode()
             
             # Change GUI board to current board
             board.board_lbl.setText(curr_board)
             print(curr_board)
-            clientSocket.sendall("Received".encode())            
+            clientGameSocket.sendall("Received".encode())            
             
             # Check if this is the player's move (1 for yes, 0 for no)
-            turn_checker = clientSocket.recv(BUFFER_SIZE).decode()
+            turn_checker = clientGameSocket.recv(BUFFER_SIZE).decode()
             print("check: " + str(turn_checker) + "\n") #Debugging only
-            clientSocket.sendall("Received".encode())
+            clientGameSocket.sendall("Received".encode())
             
             if (turn_checker == "0"):
                 # Hide button and input box
@@ -83,10 +83,10 @@ def BoardGame():
                             board.error_lbl.setText("Please input a number (1-9)")
                             print("Please input a number (1-9)")
                         else:
-                            clientSocket.sendall(player_move.encode())
+                            clientGameSocket.sendall(player_move.encode())
                             # Check if box is not occupied
-                            fill_checker = clientSocket.recv(BUFFER_SIZE).decode()
-                            clientSocket.sendall("Received".encode())
+                            fill_checker = clientGameSocket.recv(BUFFER_SIZE).decode()
+                            clientGameSocket.sendall("Received".encode())
                             if (fill_checker == "1"):
                                 # Box is occupied. Try again
                                 board.error_lbl.setText("Place already filled. Try again!!")
@@ -108,19 +108,19 @@ def BoardGame():
                 input("ERROR 1. Please Exit")
                 
             # Check if we should continue
-            continue_checker = clientSocket.recv(BUFFER_SIZE).decode()
-            clientSocket.sendall("Received".encode())
+            continue_checker = clientGameSocket.recv(BUFFER_SIZE).decode()
+            clientGameSocket.sendall("Received".encode())
             
             if (continue_checker == "Continue"):
                 continue
             elif (continue_checker == "Finish"):
                 # Update board
-                curr_board = clientSocket.recv(BUFFER_SIZE).decode()
-                clientSocket.sendall("Received".encode())
+                curr_board = clientGameSocket.recv(BUFFER_SIZE).decode()
+                clientGameSocket.sendall("Received".encode())
                 print(curr_board)
                 
-                game_message = clientSocket.recv(BUFFER_SIZE).decode()
-                clientSocket.sendall("Received".encode())
+                game_message = clientGameSocket.recv(BUFFER_SIZE).decode()
+                clientGameSocket.sendall("Received".encode())
                 
                 # Show game message
                 board.error_lbl.setText(game_message)
@@ -136,24 +136,24 @@ def BoardGame():
 
         """
         # Receive scoreboard
-        curr_scoreboard = clientSocket.recv(BUFFER_SIZE).decode()
+        curr_scoreboard = clientGameSocket.recv(BUFFER_SIZE).decode()
         print(curr_scoreboard)
         """
 
 try:
     # Connect with server
     print("Trying to connect..")
-    clientSocket.connect((HOST, PORT))
+    clientGameSocket.connect((HOST, PORT))
     print("Connection established!")
 
     # Send player name
     playerName = input("Please enter your name: ")
-    clientSocket.sendall(playerName.encode())
+    clientGameSocket.sendall(playerName.encode())
     print("Waiting for other player to connect...")
     
     """
     # Receive scoreboard
-    curr_scoreboard = clientSocket.recv(BUFFER_SIZE).decode()
+    curr_scoreboard = clientGameSocket.recv(BUFFER_SIZE).decode()
     print(curr_scoreboard)
     """
     
@@ -173,5 +173,5 @@ except Exception as e:
     print(str(e) + "\n")
 finally:
     input("Press Enter to continue") # Here to wait for user input before closing program
-    clientSocket.close()
+    clientGameSocket.close()
    

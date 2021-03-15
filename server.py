@@ -1,4 +1,5 @@
 from threading import Thread
+from socket import *
 
 # For debugging only
 def print_error_message(message, label):
@@ -149,12 +150,12 @@ def pair_incoming_clients():
         try:
             # Establish connection with client 1
             print("Waiting for player 1...")
-            connectionSocket1, connectionAddress1 = serverSocket.accept()
+            connectionSocket1, connectionAddress1 = serverGameSocket.accept()
             print("Player 1 connected successful!\n")
             
             # Establish connection with client 2
             print("Waiting for player 2...")
-            connectionSocket2, connectionAddress2 = serverSocket.accept()
+            connectionSocket2, connectionAddress2 = serverGameSocket.accept()
             print("Player 2 connected successfully!\n")
             
             Thread(target=play_game_room, args=(connectionSocket1, connectionSocket2)).start()
@@ -228,7 +229,7 @@ def play_game_room(connectionSocket1, connectionSocket2):
             curr_socket = 0
     
 
-from socket import *
+
 
 # Server IP Address and Port
 HOST = ""
@@ -236,17 +237,17 @@ PORT = 65000
 BUFFER_SIZE = 1024
 
 # Setting up our socket
-serverSocket = socket(AF_INET, SOCK_STREAM)
-serverSocket.bind((HOST, PORT))
-serverSocket.listen()
+serverGameSocket = socket(AF_INET, SOCK_STREAM)
+serverGameSocket.bind((HOST, PORT))
+serverGameSocket.listen()
 
 # CREATE TWO SOCKETS
 # ONE FOR THE GAME AND FOR THE CHAT
 
 if __name__ == "__main__":
-    serverSocket.listen(40)
+    serverGameSocket.listen(40)
     accept_thread = Thread(target=pair_incoming_clients)
     accept_thread.start()
     accept_thread.join()
-    serverSocket.close()
+    serverGameSocket.close()
 
