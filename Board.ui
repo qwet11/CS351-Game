@@ -67,6 +67,9 @@
     <property name="frameShape">
      <enum>QFrame::Box</enum>
     </property>
+    <property name="lineWidth">
+     <number>2</number>
+    </property>
     <property name="text">
      <string>[GAME BOARD]</string>
     </property>
@@ -100,39 +103,23 @@
      <string>[Turn Label]</string>
     </property>
    </widget>
-   <widget class="QLabel" name="chat_output_lbl">
+   <widget class="QLineEdit" name="chat_input_box">
     <property name="geometry">
      <rect>
-      <x>510</x>
-      <y>10</y>
-      <width>271</width>
-      <height>461</height>
-     </rect>
-    </property>
-    <property name="frameShape">
-     <enum>QFrame::Box</enum>
-    </property>
-    <property name="frameShadow">
-     <enum>QFrame::Plain</enum>
-    </property>
-    <property name="text">
-     <string>Chat box</string>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="chat_input_lbl">
-    <property name="geometry">
-     <rect>
-      <x>510</x>
+      <x>500</x>
       <y>490</y>
       <width>181</width>
       <height>22</height>
      </rect>
     </property>
+    <property name="placeholderText">
+     <string>Type message here</string>
+    </property>
    </widget>
    <widget class="QPushButton" name="send_btn">
     <property name="geometry">
      <rect>
-      <x>702</x>
+      <x>700</x>
       <y>490</y>
       <width>91</width>
       <height>20</height>
@@ -140,6 +127,22 @@
     </property>
     <property name="text">
      <string>Send</string>
+    </property>
+   </widget>
+   <widget class="QTextEdit" name="chat_output_box">
+    <property name="geometry">
+     <rect>
+      <x>500</x>
+      <y>10</y>
+      <width>281</width>
+      <height>471</height>
+     </rect>
+    </property>
+    <property name="readOnly">
+     <bool>true</bool>
+    </property>
+    <property name="acceptRichText">
+     <bool>true</bool>
     </property>
    </widget>
   </widget>
