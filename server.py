@@ -9,7 +9,10 @@ def print_error_message(message, label):
 
 # Function to print Tic Tac Toe
 def print_tic_tac_toe(values):
-    curr_board = "\n" + "\t     |     |" + "\n\t  {}  |  {}  |  {}".format(values[0], values[1], values[2]) + "\n\t_____|_____|_____" + "\n\t     |     |" + "\n\t  {}  |  {}  |  {}".format(values[3], values[4], values[5]) + "\n\t_____|_____|_____" + "\n\t     |     |" + "\n\t  {}  |  {}  |  {}".format(values[6], values[7], values[8]) + "\n\t     |     |" + "\n"
+    curr_board = ""
+    for value in values:
+        curr_board += value
+    # curr_board = "\n" + "\t     |     |" + "\n\t  {}  |  {}  |  {}".format(values[0], values[1], values[2]) + "\n\t_____|_____|_____" + "\n\t     |     |" + "\n\t  {}  |  {}  |  {}".format(values[3], values[4], values[5]) + "\n\t_____|_____|_____" + "\n\t     |     |" + "\n\t  {}  |  {}  |  {}".format(values[6], values[7], values[8]) + "\n\t     |     |" + "\n"
     return curr_board
  
  
@@ -161,8 +164,11 @@ def pair_incoming_clients():
             Thread(target=play_game_room, args=(connectionSocket1, connectionSocket2)).start()
             
         except Exception as e:
-            print("Error!")
-            print(str(e) + "\n")
+            # print("Error!")
+            # print(str(e) + "\n")
+            connectionSocket1.close()
+            connectionSocket2.close()
+            
         """"
         finally:
             # Close connection with client
@@ -172,62 +178,70 @@ def pair_incoming_clients():
         """
         
 def play_game_room(connectionSocket1, connectionSocket2):
-    # Get players names
-    player1 = connectionSocket1.recv(BUFFER_SIZE).decode()
-    player2 = connectionSocket2.recv(BUFFER_SIZE).decode()
-    
-    # Stores the current player
-    curr_player = player1
-    
-    # Stores the choice of players 
-    player_choice = {"X" : "", "O" : ""}
-    
-    # Stores the options 
-    options = ["X", "O"]
-    
-    # May change
-    player_choice["X"] = player1
-    player_choice["O"] = player2
-    
-    # Stores the scoreboard
-    score_board = {player1 : 0, player2: 0}
-    
-    # Stores the sockets
-    sockets = [connectionSocket1, connectionSocket2]
-    
-    # Stores the current socket index (for the current player)
-    curr_socket = 0
-    
-    """
-    # Send current scoreboard
-    for socket in sockets:
-        socket.sendall(print_scoreboard(score_board).encode())
-    """
-    
-    # Game Loop for a series of Tic Tac Toe
-    # The loop runs until the players quit 
-    while True:
-        # Stores the winner in a single game of Tic Tac Toe
-        winner = single_game(options[0], curr_socket, sockets)
-         
-        # Edits the scoreboard according to the winner
-        if winner != 'D' :
-            player_won = player_choice[winner]
-            score_board[player_won] = score_board[player_won] + 1
+    try: 
+        # Get players names
+        player1 = connectionSocket1.recv(BUFFER_SIZE).decode()
+        player2 = connectionSocket2.recv(BUFFER_SIZE).decode()
+        
+        # Stores the current player
+        curr_player = player1
+        
+        # Stores the choice of players 
+        player_choice = {"X" : "", "O" : ""}
+        
+        # Stores the options 
+        options = ["X", "O"]
+        
+        # May change
+        player_choice["X"] = player1
+        player_choice["O"] = player2
+        
+        # Stores the scoreboard
+        score_board = {player1 : 0, player2: 0}
+        
+        # Stores the sockets
+        sockets = [connectionSocket1, connectionSocket2]
+        
+        # Stores the current socket index (for the current player)
+        curr_socket = 0
         
         """
+        # Send current scoreboard
         for socket in sockets:
             socket.sendall(print_scoreboard(score_board).encode())
         """
         
-        # Switch player who chooses X or O
-        if curr_player == player1:
-            curr_player = player2
-            curr_socket = 1
-        else:
-            curr_player = player1
-            curr_socket = 0
-    
+        # Game Loop for a series of Tic Tac Toe
+        # The loop runs until the players quit 
+        while True:
+            # Stores the winner in a single game of Tic Tac Toe
+            winner = single_game(options[0], curr_socket, sockets)
+             
+            # Edits the scoreboard according to the winner
+            if winner != 'D' :
+                player_won = player_choice[winner]
+                score_board[player_won] = score_board[player_won] + 1
+            
+            """
+            for socket in sockets:
+                socket.sendall(print_scoreboard(score_board).encode())
+            """
+            
+            # Switch player who chooses X or O
+            if curr_player == player1:
+                curr_player = player2
+                curr_socket = 1
+            else:
+                curr_player = player1
+                curr_socket = 0
+                
+    except Exception as e:
+        connectionSocket1.close()
+        connectionSocket2.close()
+        # Thread.exit()
+        # print("Players Left")
+        # print(str(e) + "\n")
+        
 
 
 

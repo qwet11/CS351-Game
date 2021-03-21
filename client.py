@@ -4,6 +4,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 import sys
 import os
+import time
 from threading import Thread
 
 # Server IP Address and Port
@@ -19,6 +20,7 @@ clientGameSocket = socket(AF_INET, SOCK_STREAM)
 
 # GLOBALS
 player_move = "holdondude"
+playerName = "f34h9fvh394vn9fu493oihtnb93yw9yfu9nh49"
 
 class Board(QMainWindow):
     def __init__(self):
@@ -26,18 +28,63 @@ class Board(QMainWindow):
         QThread.__init__(self)
         uic.loadUi('Board.ui', self)
         self.setWindowTitle('Board Game')
+        self.send_move_bt.hide()
+        self.input_edit.hide()
         self.send_move_bt.clicked.connect(self.sendMove)
+        self.send_chat_bt.clicked.connect(self.sendChat)
         self.error_lbl.setText("")
         self.turn_lbl.setText("")
+        self.chat_output_box.setText("Please Enter Your Name!")
         
     def sendMove(self):
         global player_move
-        player_move = board.input_edit.text()
+        player_move = self.input_edit.text()
         self.input_edit.setText("")
         self.error_lbl.setText("")
+        
+    def sendChat(self):
+        global playerName
+        
+        if (playerName == "f34h9fvh394vn9fu493oihtnb93yw9yfu9nh49" and self.chat_input_box.text() != ""):
+            playerName = self.chat_input_box.text()
+            self.chat_output_box.clear()
+            
+        # elif (self.chat_input_box.text() != ""):
+        #      self.chat_output_box.append()
+             
+        self.chat_input_box.clear()
+
+def UpdateBoard(curr_board):
+    global board
+    board.box1.setText(curr_board[0])
+    board.box2.setText(curr_board[1])
+    board.box3.setText(curr_board[2])
+    board.box4.setText(curr_board[3])
+    board.box5.setText(curr_board[4])
+    board.box6.setText(curr_board[5])
+    board.box7.setText(curr_board[6])
+    board.box8.setText(curr_board[7])
+    board.box9.setText(curr_board[8])
 
 def BoardGame():
     global board, player_move
+    # Send player name
+    # playerName = input("Please enter your name: ")
+    # board.chat_output_box.setText("Please Enter Your Name!")
+    while (playerName == "f34h9fvh394vn9fu493oihtnb93yw9yfu9nh49"): { }
+
+    # board.chat_input_box.clear()
+    clientGameSocket.sendall(playerName.encode())
+    
+    board.turn_lbl.setText("Waiting for other player to connect...")
+    board.chat_input_box.hide()
+    board.send_chat_bt.hide()
+    """
+    # Receive scoreboard
+    curr_scoreboard = clientGameSocket.recv(BUFFER_SIZE).decode()
+    print(curr_scoreboard)
+    """
+    
     #Starting Game
     while True:
         # Playing Game
@@ -45,8 +92,12 @@ def BoardGame():
             # Receive current board 
             curr_board = clientGameSocket.recv(BUFFER_SIZE).decode()
             
+            board.chat_input_box.show()
+            board.send_chat_bt.show()
+            
             # Change GUI board to current board
-            board.board_lbl.setText(curr_board)
+            #board.board_lbl.setText(curr_board)
+            UpdateBoard(curr_board)
             print(curr_board)
             clientGameSocket.sendall("Received".encode())            
             
@@ -98,14 +149,17 @@ def BoardGame():
                                 break
                             else: 
                                 # Should never run. DEBUGGING
-                                input("ERROR 2. Please Exit")
+                                # input("ERROR 2. Please Exit")
+                                raise Exception
+                                
                     except(ValueError):
                         board.error_lbl.setText("Please input a number (1-9)")
                         print("Please input a number (1-9)")
                         continue
             else:
                 # Should never run. DEBUGGING
-                input("ERROR 1. Please Exit")
+                # input("ERROR 1. Please Exit")
+                raise Exception
                 
             # Check if we should continue
             continue_checker = clientGameSocket.recv(BUFFER_SIZE).decode()
@@ -118,6 +172,7 @@ def BoardGame():
                 curr_board = clientGameSocket.recv(BUFFER_SIZE).decode()
                 clientGameSocket.sendall("Received".encode())
                 print(curr_board)
+                UpdateBoard(curr_board)
                 
                 game_message = clientGameSocket.recv(BUFFER_SIZE).decode()
                 clientGameSocket.sendall("Received".encode())
@@ -131,7 +186,8 @@ def BoardGame():
                 break
             else:
                 # Should never run. DEBUGGING
-                input("ERROR 3. Please Exit")
+                # input("ERROR 3. Please Exit")
+                raise Exception
             
 
         """
@@ -146,24 +202,12 @@ try:
     clientGameSocket.connect((HOST, PORT))
     print("Connection established!")
 
-    # Send player name
-    playerName = input("Please enter your name: ")
-    clientGameSocket.sendall(playerName.encode())
-    print("Waiting for other player to connect...")
-    
-    """
-    # Receive scoreboard
-    curr_scoreboard = clientGameSocket.recv(BUFFER_SIZE).decode()
-    print(curr_scoreboard)
-    """
-    
+    game_thread = Thread(target=BoardGame)
+    game_thread.start()
+
     app = QApplication(sys.argv)
     board = Board()
     board.show()
-
-    
-    game_thread = Thread(target=BoardGame)
-    game_thread.start()
     
     app.exec_()
     #sys.exit(app.exec_())        
@@ -172,6 +216,7 @@ except Exception as e:
     print("Error!")
     print(str(e) + "\n")
 finally:
-    input("Press Enter to continue") # Here to wait for user input before closing program
+    board.error_lbl.setText("Other player has left. Please exit")
     clientGameSocket.close()
+    input("Press a key to continue")
    
