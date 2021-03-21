@@ -154,14 +154,18 @@ def pair_incoming_clients():
             # Establish connection with client 1
             print("Waiting for player 1...")
             connectionSocket1, connectionAddress1 = serverGameSocket.accept()
+            connectionChatSocket1, connectionChatAddress1 = serverChatSocket.accept()
             print("Player 1 connected successful!\n")
             
             # Establish connection with client 2
             print("Waiting for player 2...")
             connectionSocket2, connectionAddress2 = serverGameSocket.accept()
+            connectionChatSocket2, connectionChatAddress2 = serverChatSocket.accept()
             print("Player 2 connected successfully!\n")
             
             Thread(target=play_game_room, args=(connectionSocket1, connectionSocket2)).start()
+            Thread(target=handle_chat, args=(connectionChatSocket1, connectionChatSocket2)).start()
+            Thread(target=handle_chat, args=(connectionChatSocket2, connectionChatSocket1)).start()
             
         except Exception as e:
             # print("Error!")
@@ -242,26 +246,39 @@ def play_game_room(connectionSocket1, connectionSocket2):
         # print("Players Left")
         # print(str(e) + "\n")
         
+def handle_chat(clientSocket, pairSocket):
+    chatName = clientSocket.recv(BUFFER_SIZE).decode()
+    broadcast(("%s has joined the chat!" % chatName), chatName, clientSocket, pairSocket) 
+    
+    while True:
+        message = clientSocket.recv(BUFFER_SIZE).decode()
+        broadcast(message, chatName, clientSocket, pairSocket)
 
+def broadcast(message, name, socket1, socket2):
+    # Broadcasts a message to all the clients
 
-
-# Server IP Address and Port
-HOST = ""
-PORT = 65000
-BUFFER_SIZE = 1024
-
-# Setting up our socket
-serverGameSocket = socket(AF_INET, SOCK_STREAM)
-serverGameSocket.bind((HOST, PORT))
-serverGameSocket.listen()
-
-# CREATE TWO SOCKETS
-# ONE FOR THE GAME AND FOR THE CHAT
+    socket1.sendall(("%s: %s" % (name, message)).encode())
+    socket2.sendall(("%s: %s" % (name, message)).encode())
 
 if __name__ == "__main__":
+    # Server IP Address and Port
+    HOST = "localhost"
+    PORT1 = 65000
+    PORT2 = 60000
+    BUFFER_SIZE = 1024
+    
+    # Setting up our sockets
+    serverGameSocket = socket(AF_INET, SOCK_STREAM)
+    serverGameSocket.bind((HOST, PORT1))
     serverGameSocket.listen(40)
+    
+    serverChatSocket = socket(AF_INET, SOCK_STREAM)
+    serverChatSocket.bind((HOST, PORT2))
+    serverChatSocket.listen(40)
+    
     accept_thread = Thread(target=pair_incoming_clients)
     accept_thread.start()
     accept_thread.join()
     serverGameSocket.close()
+    serverChatSocket.close()
 

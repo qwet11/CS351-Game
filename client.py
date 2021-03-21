@@ -9,11 +9,13 @@ from threading import Thread
 
 # Server IP Address and Port
 HOST = "localhost"
-PORT = 65000
+PORT1 = 65000
+PORT2 = 60000
 BUFFER_SIZE = 1024
 
 # Setting up our socket
 clientGameSocket = socket(AF_INET, SOCK_STREAM)
+clientChatSocket = socket(AF_INET, SOCK_STREAM)
 
 # CREATE TWO SOCKETS
 # ONE FOR THE GAME AND FOR THE CHAT
@@ -21,6 +23,9 @@ clientGameSocket = socket(AF_INET, SOCK_STREAM)
 # GLOBALS
 player_move = "holdondude"
 playerName = "f34h9fvh394vn9fu493oihtnb93yw9yfu9nh49"
+
+
+# Game Functions
 
 class Board(QMainWindow):
     def __init__(self):
@@ -37,7 +42,7 @@ class Board(QMainWindow):
         self.chat_output_box.setText("Please Enter Your Name!")
         
     def sendMove(self):
-        global player_move
+        global player_move, clientChatSocket
         player_move = self.input_edit.text()
         self.input_edit.setText("")
         self.error_lbl.setText("")
@@ -47,10 +52,9 @@ class Board(QMainWindow):
         
         if (playerName == "f34h9fvh394vn9fu493oihtnb93yw9yfu9nh49" and self.chat_input_box.text() != ""):
             playerName = self.chat_input_box.text()
-            self.chat_output_box.clear()
-            
-        # elif (self.chat_input_box.text() != ""):
-        #      self.chat_output_box.append()
+            self.chat_output_box.clear() 
+        elif (self.chat_input_box.text() != ""):
+            clientChatSocket.sendall(self.chat_input_box.text().encode())
              
         self.chat_input_box.clear()
 
@@ -75,6 +79,7 @@ def BoardGame():
 
     # board.chat_input_box.clear()
     clientGameSocket.sendall(playerName.encode())
+    clientChatSocket.sendall(playerName.encode())
     
     board.turn_lbl.setText("Waiting for other player to connect...")
     board.chat_input_box.hide()
@@ -196,27 +201,44 @@ def BoardGame():
         print(curr_scoreboard)
         """
 
-try:
-    # Connect with server
-    print("Trying to connect..")
-    clientGameSocket.connect((HOST, PORT))
-    print("Connection established!")
+# Chat Functions
+def chat_receive():
+    # Handles receiving of messages
+    global board
+    while True:
+        try:
+            message = clientChatSocket.recv(BUFFER_SIZE).decode()
+            print(message)
+            board.chat_output_box.append(message)
+        except OSError:  # Possibly client has left the chat.
+            break
 
-    game_thread = Thread(target=BoardGame)
-    game_thread.start()
-
-    app = QApplication(sys.argv)
-    board = Board()
-    board.show()
+if __name__ == "__main__":
+    try:
+        # Connect with server
+        print("Trying to connect..")
+        clientGameSocket.connect((HOST, PORT1))
+        clientChatSocket.connect((HOST, PORT2))
+        print("Connection established!")
     
-    app.exec_()
-    #sys.exit(app.exec_())        
+        game_thread = Thread(target=BoardGame)
+        game_thread.start()
+        
+        chat_thread = Thread(target=chat_receive)
+        chat_thread.start()
     
-except Exception as e:
-    print("Error!")
-    print(str(e) + "\n")
-finally:
-    board.error_lbl.setText("Other player has left. Please exit")
-    clientGameSocket.close()
-    input("Press a key to continue")
-   
+        app = QApplication(sys.argv)
+        board = Board()
+        board.show()
+        
+        app.exec_()
+        #sys.exit(app.exec_())        
+        
+    except Exception as e:
+        print("Error!")
+        print(str(e) + "\n")
+    finally:
+        board.error_lbl.setText("Other player has left. Please exit")
+        clientGameSocket.close()
+        input("Press a key to continue")
+       
