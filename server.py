@@ -48,7 +48,7 @@ def check_draw(player_pos):
     return False       
  
 # Function for a single game of Tic Tac Toe
-def single_game(piece_letter, curr_socket, sockets):
+def single_game(piece_letter, player_choice, curr_socket, sockets):
  
     # Represents the Tic Tac Toe
     values = [' ' for x in range(9)]
@@ -110,7 +110,7 @@ def single_game(piece_letter, curr_socket, sockets):
                 if (socket.recv(BUFFER_SIZE).decode() != "Received"):
                     print_error_message("ERROR. Out of Sync", 600)
                 
-                socket.sendall(("Player " + piece_letter + " has won the game!!").encode())   
+                socket.sendall((player_choice[piece_letter] + " has won the game!!").encode())   
                 if (socket.recv(BUFFER_SIZE).decode() != "Received"):
                     print_error_message("ERROR. Out of Sync", 700)
             return piece_letter
@@ -191,7 +191,7 @@ def play_game_room(connectionSocket1, connectionSocket2):
         curr_player = player1
         
         # Stores the choice of players 
-        player_choice = {"X" : "", "O" : ""}
+        player_choice = {"X" : player1, "O" : player2}
         
         # Stores the options 
         options = ["X", "O"]
@@ -219,7 +219,7 @@ def play_game_room(connectionSocket1, connectionSocket2):
         # The loop runs until the players quit 
         while True:
             # Stores the winner in a single game of Tic Tac Toe
-            winner = single_game(options[0], curr_socket, sockets)
+            winner = single_game(options[curr_socket], player_choice, curr_socket, sockets)
              
             # Edits the scoreboard according to the winner
             if winner != 'D' :
@@ -251,14 +251,14 @@ def handle_chat(clientSocket, pairSocket):
     broadcast(("%s has joined the chat!" % chatName), chatName, clientSocket, pairSocket) 
     
     while True:
-        message = clientSocket.recv(BUFFER_SIZE).decode()
+        message = clientSocket.recv(BUFFER_SIZE * 3).decode()
         broadcast(message, chatName, clientSocket, pairSocket)
 
 def broadcast(message, name, socket1, socket2):
     # Broadcasts a message to all the clients
 
-    socket1.sendall(("%s: %s" % (name, message)).encode())
-    socket2.sendall(("%s: %s" % (name, message)).encode())
+    socket1.sendall(("%s: %s \n" % (name, message)).encode())
+    socket2.sendall(("%s: %s \n" % (name, message)).encode())
 
 if __name__ == "__main__":
     # Server IP Address and Port

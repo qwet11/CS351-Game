@@ -10,6 +10,18 @@
     <height>600</height>
    </rect>
   </property>
+  <property name="minimumSize">
+   <size>
+    <width>800</width>
+    <height>600</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>800</width>
+    <height>600</height>
+   </size>
+  </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
@@ -57,7 +69,7 @@
      <rect>
       <x>80</x>
       <y>500</y>
-      <width>181</width>
+      <width>351</width>
       <height>41</height>
      </rect>
     </property>
@@ -70,7 +82,7 @@
      <rect>
       <x>80</x>
       <y>410</y>
-      <width>181</width>
+      <width>351</width>
       <height>41</height>
      </rect>
     </property>
@@ -84,7 +96,7 @@
       <x>500</x>
       <y>490</y>
       <width>181</width>
-      <height>22</height>
+      <height>25</height>
      </rect>
     </property>
     <property name="placeholderText">
@@ -94,10 +106,10 @@
    <widget class="QPushButton" name="send_chat_bt">
     <property name="geometry">
      <rect>
-      <x>700</x>
+      <x>692</x>
       <y>490</y>
       <width>91</width>
-      <height>20</height>
+      <height>25</height>
      </rect>
     </property>
     <property name="text">
@@ -112,6 +124,9 @@
       <width>281</width>
       <height>471</height>
      </rect>
+    </property>
+    <property name="sizeAdjustPolicy">
+     <enum>QAbstractScrollArea::AdjustToContents</enum>
     </property>
     <property name="readOnly">
      <bool>true</bool>
@@ -128,6 +143,9 @@
       <width>371</width>
       <height>21</height>
      </rect>
+    </property>
+    <property name="lineWidth">
+     <number>1</number>
     </property>
     <property name="orientation">
      <enum>Qt::Horizontal</enum>
@@ -323,7 +341,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>21</height>
+     <height>26</height>
     </rect>
    </property>
   </widget>

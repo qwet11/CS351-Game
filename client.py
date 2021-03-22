@@ -207,9 +207,11 @@ def chat_receive():
     global board
     while True:
         try:
-            message = clientChatSocket.recv(BUFFER_SIZE).decode()
+            message = clientChatSocket.recv(BUFFER_SIZE * 3).decode()
             print(message)
             board.chat_output_box.append(message)
+            time.sleep(0.001)
+            board.chat_output_box.verticalScrollBar().setValue(board.chat_output_box.verticalScrollBar().maximum())
         except OSError:  # Possibly client has left the chat.
             break
 
