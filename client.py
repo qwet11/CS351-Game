@@ -8,7 +8,7 @@ import time
 from threading import Thread
 
 # Server IP Address and Port
-HOST = "localhost"
+HOST = "ec2-3-142-208-64.us-east-2.compute.amazonaws.com"
 PORT1 = 65000
 PORT2 = 60000
 BUFFER_SIZE = 1024
@@ -205,6 +205,7 @@ def BoardGame():
 def chat_receive():
     # Handles receiving of messages
     global board
+    while (playerName == "f34h9fvh394vn9fu493oihtnb93yw9yfu9nh49"): { }
     while True:
         try:
             message = clientChatSocket.recv(BUFFER_SIZE * 3).decode()
