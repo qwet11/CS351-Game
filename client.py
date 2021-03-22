@@ -240,7 +240,8 @@ if __name__ == "__main__":
         print("Error!")
         print(str(e) + "\n")
     finally:
-        board.error_lbl.setText("Other player has left. Please exit")
+        #board.error_lbl.setText("Other player has left. Please exit")
+        print("Other player has left. Please exit")
         clientGameSocket.close()
         input("Press a key to continue")
        
