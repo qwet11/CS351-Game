@@ -188,6 +188,8 @@ def BoardGame():
                 
                 # Reset turn label
                 board.turn_lbl.setText("")
+                board.send_move_bt.hide() 
+                board.input_edit.hide()
                 time.sleep(5)
                 break
             else:
