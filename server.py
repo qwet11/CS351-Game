@@ -167,6 +167,10 @@ def pair_incoming_clients():
             Thread(target=handle_chat, args=(connectionChatSocket1, connectionChatSocket2)).start()
             Thread(target=handle_chat, args=(connectionChatSocket2, connectionChatSocket1)).start()
             
+        except socket.error:
+            connectionSocket1.close()
+            connectionSocket2.close()
+        
         except Exception as e:
             # print("Error!")
             # print(str(e) + "\n")
@@ -247,12 +251,16 @@ def play_game_room(connectionSocket1, connectionSocket2):
         # print(str(e) + "\n")
         
 def handle_chat(clientSocket, pairSocket):
-    chatName = clientSocket.recv(BUFFER_SIZE).decode()
-    broadcast(("%s has joined the chat!" % chatName), chatName, clientSocket, pairSocket) 
+    try:
+        chatName = clientSocket.recv(BUFFER_SIZE).decode()
+        broadcast(("%s has joined the chat!" % chatName), chatName, clientSocket, pairSocket) 
     
-    while True:
-        message = clientSocket.recv(BUFFER_SIZE * 3).decode()
-        broadcast(message, chatName, clientSocket, pairSocket)
+        while True:
+            message = clientSocket.recv(BUFFER_SIZE * 3).decode()
+            broadcast(message, chatName, clientSocket, pairSocket)
+    except Exception as e:
+        clientSocket.close()
+        pairSocket.close()
 
 def broadcast(message, name, socket1, socket2):
     # Broadcasts a message to all the clients
@@ -263,8 +271,8 @@ def broadcast(message, name, socket1, socket2):
 if __name__ == "__main__":
     # Server IP Address and Port
     HOST = "ec2-3-142-208-64.us-east-2.compute.amazonaws.com"
-    PORT1 = 65000
-    PORT2 = 60000
+    PORT1 = 6500
+    PORT2 = 6000
     BUFFER_SIZE = 1024
     
     # Setting up our sockets

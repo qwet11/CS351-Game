@@ -9,8 +9,8 @@ from threading import Thread
 
 # Server IP Address and Port
 HOST = "ec2-3-142-208-64.us-east-2.compute.amazonaws.com"
-PORT1 = 65000
-PORT2 = 60000
+PORT1 = 6500
+PORT2 = 6000
 BUFFER_SIZE = 1024
 
 # Setting up our socket
@@ -211,10 +211,10 @@ def chat_receive():
             message = clientChatSocket.recv(BUFFER_SIZE * 3).decode()
             print(message)
             board.chat_output_box.append(message)
-            time.sleep(0.001)
+            time.sleep(0.01)
             board.chat_output_box.verticalScrollBar().setValue(board.chat_output_box.verticalScrollBar().maximum())
-        except OSError:  # Possibly client has left the chat.
-            break
+        except Exception as e:  # Possibly client has left the chat.
+            clientChatSocket.close()
 
 if __name__ == "__main__":
     try:
