@@ -49,7 +49,8 @@ def check_draw(player_pos):
  
 # Function for a single game of Tic Tac Toe
 def single_game(piece_letter, player_choice, curr_socket, sockets):
- 
+    global score_board
+    
     # Represents the Tic Tac Toe
     values = [' ' for x in range(9)]
      
@@ -113,6 +114,8 @@ def single_game(piece_letter, player_choice, curr_socket, sockets):
                 socket.sendall((player_choice[piece_letter] + " has won the game!!").encode())   
                 if (socket.recv(BUFFER_SIZE).decode() != "Received"):
                     print_error_message("ERROR. Out of Sync", 700)
+                    
+                    
             return piece_letter
         # Function call for checking draw game
         elif check_draw(player_pos):
@@ -186,10 +189,11 @@ def pair_incoming_clients():
         """
         
 def play_game_room(connectionSocket1, connectionSocket2):
+    global score_board
     try: 
         # Get players names
-        player1 = connectionSocket1.recv(BUFFER_SIZE).decode()
-        player2 = connectionSocket2.recv(BUFFER_SIZE).decode()
+        player1 = connectionSocket1.recv(BUFFER_SIZE).decode()[:11]
+        player2 = connectionSocket2.recv(BUFFER_SIZE).decode()[:11]
         
         # Stores the current player
         curr_player = player1
@@ -234,6 +238,11 @@ def play_game_room(connectionSocket1, connectionSocket2):
             for socket in sockets:
                 socket.sendall(print_scoreboard(score_board).encode())
             """
+            for socket in sockets:
+                # score_board[winner] = score_board[winner] + 1
+                socket.sendall(("%s: %d     %s: %d" % (player_choice['X'], score_board[player_choice['X']], player_choice['O'], score_board[player_choice['O']])).encode())   
+                if (socket.recv(BUFFER_SIZE).decode() != "Received"):
+                    print_error_message("ERROR. Out of Sync", 1200)
             
             # Switch player who chooses X or O
             if curr_player == player1:
@@ -252,7 +261,7 @@ def play_game_room(connectionSocket1, connectionSocket2):
         
 def handle_chat(clientSocket, pairSocket):
     try:
-        chatName = clientSocket.recv(BUFFER_SIZE).decode()
+        chatName = clientSocket.recv(BUFFER_SIZE).decode()[:11]
         broadcast(("%s has joined the chat!" % chatName), chatName, clientSocket, pairSocket) 
     
         while True:
@@ -270,9 +279,9 @@ def broadcast(message, name, socket1, socket2):
 
 if __name__ == "__main__":
     # Server IP Address and Port
-    HOST = "ec2-3-142-208-64.us-east-2.compute.amazonaws.com"
-    PORT1 = 9999
-    PORT2 = 9998
+    HOST = "localhost"
+    PORT1 = 64000
+    PORT2 = 65000
     BUFFER_SIZE = 1024
     
     # Setting up our sockets

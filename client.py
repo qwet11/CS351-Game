@@ -8,17 +8,14 @@ import time
 from threading import Thread
 
 # Server IP Address and Port
-HOST = "ec2-3-142-208-64.us-east-2.compute.amazonaws.com"
-PORT1 = 9999
-PORT2 = 9998
+HOST = "localhost"
+PORT1 = 64000
+PORT2 = 65000
 BUFFER_SIZE = 1024
 
 # Setting up our socket
 clientGameSocket = socket(AF_INET, SOCK_STREAM)
 clientChatSocket = socket(AF_INET, SOCK_STREAM)
-
-# CREATE TWO SOCKETS
-# ONE FOR THE GAME AND FOR THE CHAT
 
 # GLOBALS
 player_move = "holdondude"
@@ -32,14 +29,16 @@ class Board(QMainWindow):
         #super().__init__()
         QThread.__init__(self)
         uic.loadUi('Board.ui', self)
-        self.setWindowTitle('Board Game')
+        self.setWindowTitle('Tic-Tac-Toe Game')
         self.send_move_bt.hide()
         self.input_edit.hide()
         self.send_move_bt.clicked.connect(self.sendMove)
         self.send_chat_bt.clicked.connect(self.sendChat)
         self.error_lbl.setText("")
         self.turn_lbl.setText("")
-        self.chat_output_box.setText("Please Enter Your Name!")
+        self.scoreboard_lbl.setText("")
+        self.chat_output_box.setText("Please enter your name!")
+        self.chat_output_box.append("Max characters used for the name is 11!")
         
     def sendMove(self):
         global player_move, clientChatSocket
@@ -71,7 +70,7 @@ def UpdateBoard(curr_board):
     board.box9.setText(curr_board[8])
 
 def BoardGame():
-    global board, player_move
+    global board, player_move, playerName
     # Send player name
     # playerName = input("Please enter your name: ")
     # board.chat_output_box.setText("Please Enter Your Name!")
@@ -182,16 +181,22 @@ def BoardGame():
                 game_message = clientGameSocket.recv(BUFFER_SIZE).decode()
                 clientGameSocket.sendall("Received".encode())
                 
+                current_score = clientGameSocket.recv(BUFFER_SIZE).decode()
+                clientGameSocket.sendall("Received".encode())
+                board.scoreboard_lbl.setText(current_score)
+                print(current_score)
+                
                 # Show game message
                 board.error_lbl.setText(game_message)
                 print(game_message)
                 
                 # Reset turn label
-                board.turn_lbl.setText("")
+                board.turn_lbl.setText("Next game starting in a few seconds...")
                 board.send_move_bt.hide() 
                 board.input_edit.hide()
                 time.sleep(5)
                 board.error_lbl.setText("")
+                board.turn_lbl.setText("")
                 break
             else:
                 # Should never run. DEBUGGING
@@ -207,7 +212,7 @@ def BoardGame():
 # Chat Functions
 def chat_receive():
     # Handles receiving of messages
-    global board
+    global board, playerName
     while (playerName == "f34h9fvh394vn9fu493oihtnb93yw9yfu9nh49"): { }
     while True:
         try:
@@ -226,13 +231,13 @@ if __name__ == "__main__":
         clientGameSocket.connect((HOST, PORT1))
         clientChatSocket.connect((HOST, PORT2))
         print("Connection established!")
-    
+        
+
         game_thread = Thread(target=BoardGame)
         game_thread.start()
-        
         chat_thread = Thread(target=chat_receive)
         chat_thread.start()
-    
+        
         app = QApplication(sys.argv)
         board = Board()
         board.show()
