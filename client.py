@@ -191,6 +191,7 @@ def BoardGame():
                 board.send_move_bt.hide() 
                 board.input_edit.hide()
                 time.sleep(5)
+                board.error_lbl.setText("")
                 break
             else:
                 # Should never run. DEBUGGING
