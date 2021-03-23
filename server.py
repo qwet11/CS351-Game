@@ -271,8 +271,8 @@ def broadcast(message, name, socket1, socket2):
 if __name__ == "__main__":
     # Server IP Address and Port
     HOST = "ec2-3-142-208-64.us-east-2.compute.amazonaws.com"
-    PORT1 = 10500
-    PORT2 = 10000
+    PORT1 = 9999
+    PORT2 = 9998
     BUFFER_SIZE = 1024
     
     # Setting up our sockets
