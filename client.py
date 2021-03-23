@@ -188,12 +188,12 @@ def BoardGame():
                 
                 # Reset turn label
                 board.turn_lbl.setText("")
+                time.sleep(5)
                 break
             else:
                 # Should never run. DEBUGGING
                 # input("ERROR 3. Please Exit")
-                raise Exception
-            
+                raise Exception            
 
         """
         # Receive scoreboard
