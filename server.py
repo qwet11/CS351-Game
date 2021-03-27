@@ -12,19 +12,8 @@ def print_tic_tac_toe(values):
     curr_board = ""
     for value in values:
         curr_board += value
-    # curr_board = "\n" + "\t     |     |" + "\n\t  {}  |  {}  |  {}".format(values[0], values[1], values[2]) + "\n\t_____|_____|_____" + "\n\t     |     |" + "\n\t  {}  |  {}  |  {}".format(values[3], values[4], values[5]) + "\n\t_____|_____|_____" + "\n\t     |     |" + "\n\t  {}  |  {}  |  {}".format(values[6], values[7], values[8]) + "\n\t     |     |" + "\n"
     return curr_board
- 
- 
-# Function to print the score-board
-def print_scoreboard(score_board):
-    curr_scoreboard = "\t--------------------------------" + "\n\t SCOREBOARD       " + "\n\t--------------------------------\n"
- 
-    players = list(score_board.keys())
-    curr_scoreboard += ("\t   ", players[0], "\t    ", score_board[players[0]] + "\n")
-    curr_scoreboard += ("\t   ", players[1], "\t    ", score_board[players[1]] + "\n")
-    curr_scoreboard += ("\t--------------------------------\n")
-    return curr_scoreboard
+
  
 # Function to check if any player has won
 def check_win(player_pos, curr_player):
@@ -38,6 +27,7 @@ def check_win(player_pos, curr_player):
  
             # Return True if any winning combination satisfies
             return True
+        
     # Return False if no combination is satisfied       
     return False       
  
@@ -175,18 +165,9 @@ def pair_incoming_clients():
             connectionSocket2.close()
         
         except Exception as e:
-            # print("Error!")
-            # print(str(e) + "\n")
             connectionSocket1.close()
             connectionSocket2.close()
             
-        """"
-        finally:
-            # Close connection with client
-            for socket in sockets:
-                socket.close()
-            print("Connection successfully terminated!\n")
-        """
         
 def play_game_room(connectionSocket1, connectionSocket2):
     global score_board
@@ -217,12 +198,6 @@ def play_game_room(connectionSocket1, connectionSocket2):
         # Stores the current socket index (for the current player)
         curr_socket = 0
         
-        """
-        # Send current scoreboard
-        for socket in sockets:
-            socket.sendall(print_scoreboard(score_board).encode())
-        """
-        
         # Game Loop for a series of Tic Tac Toe
         # The loop runs until the players quit 
         while True:
@@ -234,10 +209,6 @@ def play_game_room(connectionSocket1, connectionSocket2):
                 player_won = player_choice[winner]
                 score_board[player_won] = score_board[player_won] + 1
             
-            """
-            for socket in sockets:
-                socket.sendall(print_scoreboard(score_board).encode())
-            """
             for socket in sockets:
                 # score_board[winner] = score_board[winner] + 1
                 socket.sendall(("%s: %d     %s: %d" % (player_choice['X'], score_board[player_choice['X']], player_choice['O'], score_board[player_choice['O']])).encode())   
@@ -255,9 +226,6 @@ def play_game_room(connectionSocket1, connectionSocket2):
     except Exception as e:
         connectionSocket1.close()
         connectionSocket2.close()
-        # Thread.exit()
-        # print("Players Left")
-        # print(str(e) + "\n")
         
 def handle_chat(clientSocket, pairSocket):
     try:
@@ -298,4 +266,3 @@ if __name__ == "__main__":
     accept_thread.join()
     serverGameSocket.close()
     serverChatSocket.close()
-

@@ -3,7 +3,6 @@ from PyQt5 import uic
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 import sys
-import os
 import time
 from threading import Thread
 
@@ -23,10 +22,8 @@ playerName = "f34h9fvh394vn9fu493oihtnb93yw9yfu9nh49"
 
 
 # Game Functions
-
 class Board(QMainWindow):
     def __init__(self):
-        #super().__init__()
         QThread.__init__(self)
         uic.loadUi('Board.ui', self)
         self.setWindowTitle('Tic-Tac-Toe Game')
@@ -72,22 +69,14 @@ def UpdateBoard(curr_board):
 def BoardGame():
     global board, player_move, playerName
     # Send player name
-    # playerName = input("Please enter your name: ")
-    # board.chat_output_box.setText("Please Enter Your Name!")
     while (playerName == "f34h9fvh394vn9fu493oihtnb93yw9yfu9nh49"): { }
 
-    # board.chat_input_box.clear()
     clientGameSocket.sendall(playerName.encode())
     clientChatSocket.sendall(playerName.encode())
     
     board.turn_lbl.setText("Waiting for other player to connect...")
     board.chat_input_box.hide()
     board.send_chat_bt.hide()
-    """
-    # Receive scoreboard
-    curr_scoreboard = clientGameSocket.recv(BUFFER_SIZE).decode()
-    print(curr_scoreboard)
-    """
     
     #Starting Game
     while True:
@@ -100,7 +89,6 @@ def BoardGame():
             board.send_chat_bt.show()
             
             # Change GUI board to current board
-            #board.board_lbl.setText(curr_board)
             UpdateBoard(curr_board)
             print(curr_board)
             clientGameSocket.sendall("Received".encode())            
@@ -203,12 +191,6 @@ def BoardGame():
                 # input("ERROR 3. Please Exit")
                 raise Exception            
 
-        """
-        # Receive scoreboard
-        curr_scoreboard = clientGameSocket.recv(BUFFER_SIZE).decode()
-        print(curr_scoreboard)
-        """
-
 # Chat Functions
 def chat_receive():
     # Handles receiving of messages
@@ -242,14 +224,12 @@ if __name__ == "__main__":
         board = Board()
         board.show()
         
-        app.exec_()
-        #sys.exit(app.exec_())        
+        app.exec_() 
         
     except Exception as e:
         print("Error!")
         print(str(e) + "\n")
     finally:
-        #board.error_lbl.setText("Other player has left. Please exit")
         print("Other player has left. Please exit")
         clientGameSocket.close()
         input("Press a key to continue")
