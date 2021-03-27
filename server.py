@@ -1,6 +1,13 @@
 from threading import Thread
 from socket import *
 
+# Server IP Address and Port
+HOST = "ec2-3-142-208-64.us-east-2.compute.amazonaws.com"
+PORT1 = 64000
+PORT2 = 65000
+BUFFER_SIZE = 1024
+
+
 # For debugging only
 def print_error_message(message, label):
     print(message)
@@ -246,12 +253,7 @@ def broadcast(message, name, socket1, socket2):
     socket2.sendall(("%s: %s \n" % (name, message)).encode())
 
 if __name__ == "__main__":
-    # Server IP Address and Port
-    HOST = "ec2-3-142-208-64.us-east-2.compute.amazonaws.com"
-    PORT1 = 64000
-    PORT2 = 65000
-    BUFFER_SIZE = 1024
-    
+   
     # Setting up our sockets
     serverGameSocket = socket(AF_INET, SOCK_STREAM)
     serverGameSocket.bind((HOST, PORT1))
